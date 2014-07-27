@@ -31,11 +31,17 @@
                            (keyword? item) (.getBytes (name item))
                            :else (throw (Exception. (str "Unable to put type " (class item))))))
 
+(defn ->string [item] (cond (keyword? item) (name item)
+                            (string? item) item
+                            :else (throw (Exception. (str "Unable to put type " (class item))))))
+
 (defn create-get [row spec]
   (let [g (Get. (->bytes row))]
     (when-let [family (:family spec)]
       (if-let [column (:column spec)]
-        (.addColumn g (->bytes family) (->bytes column))
+        (let [cols (if (vector? column) column [column])]
+          (doall (for [col cols]
+                   (.addColumn g (->bytes family) (->bytes col)))))
         (.addFamily g (->bytes family))))
     g))
 
@@ -69,10 +75,12 @@
         result-map (.getMap result)
         value-reducer (fn [family column acc [timestamp value]]
                         (let [mapper (get-in value-mapper [family column]
-                                             (get-in value-mapper [family :*] default-value-mapper))]
+                                             (get-in value-mapper [family :*]
+                                                     (get-in value-mapper [:* :*] default-value-mapper)))]
                           (assoc acc (timestamp-mapper timestamp) (mapper value))))
         column-reducer (fn [family acc [column values]]
-                         (let [mapper (map-get column-mapper family default-column-mapper)
+                         (let [mapper (map-get column-mapper family
+                                               (get-in column-mapper [:*] default-column-mapper))
                                mapped-column (mapper column)]
                            (assoc acc mapped-column
                              (reduce (partial value-reducer family mapped-column) {} values))))
@@ -89,12 +97,12 @@
   (get [this table-name row spec result-mapping]
        (unwrap-result
         (.get
-         (create-table connection table-name)
+         (create-table connection (->string table-name))
          (create-get row spec))
         result-mapping))
   (put [this table-name row values]
        (.put
-         (create-table connection table-name)
+         (create-table connection (->string table-name))
          (create-put row values))))
 
 (defn create-database
