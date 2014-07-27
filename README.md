@@ -21,6 +21,8 @@ user=> (hb/get db :files "myfile.txt" {} {})
  "byte-data" {#<byte[] [B@510bf556> {#inst "2014-07-27T03:12:10.639-00:00" #<byte[] [B@2f5a7d38>}}}
 ```
 
+#### Get
+
 To be able to convert the `get` results back to usable data, it is possible to specify mappers in the last argument. The
 mappers are specified in a clojure map and it follows the format:
 
@@ -48,7 +50,29 @@ user=> (hb/get db :files "myfile.txt" {} {:column {:* #(String. %)}
                                           :value {:* {:* #(String. %)}}})
 {"content-type" {"" {#inst "2014-07-27T03:12:10.639-00:00" "text/plain"}},
  "byte-data" {"" {#inst "2014-07-27T03:12:10.639-00:00" "how neat"}}}
+
+And to `get` only specific families and columns:
+
+```clojure
+user=> (hb/get db :files "myfile.txt" {:family :byte-data}
+                                      {:column {:* #(String. %)}
+                                       :value {:* {:* #(String. %)}}})
+{"byte-data" {"second" {#inst "2014-07-27T03:39:27.389-00:00" "second file"},
+              "first" {#inst "2014-07-27T03:39:27.389-00:00" "first file"}}}
+user=> (hb/get db :files "myfile.txt" {:family :byte-data
+                                       :column :first}
+                                      {:column {:* #(String. %)}
+                                       :value {:* {:* #(String. %)}}})
+{"byte-data" {"first" {#inst "2014-07-27T03:39:27.389-00:00" "first file"}}}
+user=> (hb/get db :files "myfile.txt" {:family :byte-data
+                                       :column [:first :second]}
+                                      {:column {:* #(String. %)}
+                                       :value {:* {:* #(String. %)}}})
+{"byte-data" {"second" {#inst "2014-07-27T03:39:27.389-00:00" "second file"},
+              "first" {#inst "2014-07-27T03:39:27.389-00:00" "first file"}}}
 ```
+```
+#### Put
 
 It is also possible to `put` several columns at once:
 
@@ -64,24 +88,26 @@ user=> (hb/get db :files "myfile.txt" {} {:column {:* #(String. %)}
               "first" {#inst "2014-07-27T03:39:27.389-00:00" "first file"}}}
 ```
 
-And to `get` only specific families and columns:
+### Delete
 
 ```clojure
-user=> (hb/get db :files "myfile.txt" {:family :byte-data} {:column {:* #(String. %)}
-                                                            :value {:* {:* #(String. %)}}})
-{"byte-data" {"second" {#inst "2014-07-27T03:39:27.389-00:00" "second file"},
-              "first" {#inst "2014-07-27T03:39:27.389-00:00" "first file"}}}
-user=> (hb/get db :files "myfile.txt" {:family :byte-data
-                                       :column :first}
-                                      {:column {:* #(String. %)}
-                                       :value {:* {:* #(String. %)}}})
-{"byte-data" {"first" {#inst "2014-07-27T03:39:27.389-00:00" "first file"}}}
-user=> (hb/get db :files "myfile.txt" {:family :byte-data
-                                       :column [:first :second]}
-                                      {:column {:* #(String. %)}
-                                       :value {:* {:* #(String. %)}}})
-{"byte-data" {"second" {#inst "2014-07-27T03:39:27.389-00:00" "second file"},
-              "first" {#inst "2014-07-27T03:39:27.389-00:00" "first file"}}}
+user=> (hb/put db :files "myfile.txt" {:byte-data "myfile"
+                                       :content-type "text/plain"})
+nil
+user=> (hb/get db :files "myfile.txt" {} {:column {:* #(String. %)}
+                                          :value {:* {:* #(String. %)}}})
+{"content-type" {"" {#inst "2014-07-27T13:34:15.601-00:00" "text/plain"}},
+ "byte-data" {"" {#inst "2014-07-27T13:34:15.601-00:00" "myfile"}}}
+user=> (hb/delete db :files "myfile.txt" {:family :byte-data})
+nil
+user=> (hb/get db :files "myfile.txt" {} {:column {:* #(String. %)}
+                                          :value {:* {:* #(String. %)}}})
+{"content-type" {"" {#inst "2014-07-27T13:34:15.601-00:00" "text/plain"}}}
+user=> (hb/delete db :files "myfile.txt" {})
+nil
+user=> (hb/get db :files "myfile.txt" {} {:column {:* #(String. %)}
+                                          :value {:* {:* #(String. %)}}})
+{}
 ```
 
 ### Admin Operations
