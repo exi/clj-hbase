@@ -13,6 +13,10 @@
   (get [this table-name row spec result-mapping])
   (put [this table-name row values]))
 
+(defmacro with-table [& body]
+  `(with-open [~'table (interop/create-table-obj ~'connection (util/->string ~'table-name))]
+     ~@body))
+
 (deftype HBase [connection]
   HBaseProto
   (create-table [this table-name family-names]
@@ -30,27 +34,24 @@
                       table (util/->bytes table-name)]
                   (.disableTable admin table)
                   (.deleteTable admin table)))
-  (disable-table [this table-name] (.disableTable (interop/create-admin-obj connection)))
-  (enable-table [this table-name] (.enableTable (interop/create-admin-obj connection)))
+  (disable-table [this table-name]
+                 (.disableTable (interop/create-admin-obj connection)))
+  (enable-table [this table-name]
+                (.enableTable (interop/create-admin-obj connection)))
   (table-exists? [this table-name]
                  (interop/table-exists?
                   (interop/create-admin-obj connection)
                   table-name))
   (delete [this table-name row spec]
-       (.delete
-         (interop/create-table-obj connection (util/->string table-name))
-         (interop/create-delete-obj row spec)))
+          (with-table (.delete table (interop/create-delete-obj row spec))))
   (get [this table-name row spec result-mapping]
-       (interop/unwrap-result
-        (.get
-         (interop/create-table-obj connection (util/->string table-name))
-         (interop/create-get-obj row spec))
-        result-mapping))
+       (with-table
+         (interop/unwrap-result
+          (.get table (interop/create-get-obj row spec))
+          result-mapping)))
   (put [this table-name row values]
-       (.put
-         (interop/create-table-obj connection (util/->string table-name))
-         (interop/create-put-obj row values)))
-  )
+       (with-table
+         (.put table (interop/create-put-obj row values)))))
 
 (defn create-database
   ([] (create-database {}))
