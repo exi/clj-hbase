@@ -30,7 +30,8 @@ mappers are specified in a clojure map and it follows the format:
 {:column {"myfamily" <fn to convert the column names for columnFamily "myfamily">
           :* <fn to convert the column names for ALL column families>}
  :values {"myfamily" {:* <fn that converts ALL value for all columns in "myfamily">}
-          "secondfamily" {"mycolumnname" <fn that converts the values of family "secondfamily" in the column "mycolumn". The column name is matched AFTER it was converted by the column name mapper.>
+          "secondfamily" {"mycolumnname" <fn that converts the values of family "secondfamily" in the column "mycolumn".
+                                          The column name is matched AFTER it was converted by the column name mapper.>
           :* {:* <fn that converts all values>}
 ```
 
