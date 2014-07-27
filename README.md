@@ -71,7 +71,8 @@ And to `get` only specific families and columns:
                                            :column [:first :second]}
                                           {:column {:* #(String. %)}
                                            :value {:* {:* #(String. %)}}})
-    {"byte-data" {"second" {#inst "2014-07-27T03:39:27.389-00:00" "second file"}, "first" {#inst "2014-07-27T03:39:27.389-00:00" "first file"}}}
+    {"byte-data" {"second" {#inst "2014-07-27T03:39:27.389-00:00" "second file"},
+                  "first" {#inst "2014-07-27T03:39:27.389-00:00" "first file"}}}
 
 ## License
 
