@@ -50,6 +50,7 @@ user=> (hb/get db :files "myfile.txt" {} {:column {:* #(String. %)}
                                           :value {:* {:* #(String. %)}}})
 {"content-type" {"" {#inst "2014-07-27T03:12:10.639-00:00" "text/plain"}},
  "byte-data" {"" {#inst "2014-07-27T03:12:10.639-00:00" "how neat"}}}
+```
 
 And to `get` only specific families and columns:
 
@@ -71,7 +72,7 @@ user=> (hb/get db :files "myfile.txt" {:family :byte-data
 {"byte-data" {"second" {#inst "2014-07-27T03:39:27.389-00:00" "second file"},
               "first" {#inst "2014-07-27T03:39:27.389-00:00" "first file"}}}
 ```
-```
+
 #### Put
 
 It is also possible to `put` several columns at once:
@@ -88,7 +89,7 @@ user=> (hb/get db :files "myfile.txt" {} {:column {:* #(String. %)}
               "first" {#inst "2014-07-27T03:39:27.389-00:00" "first file"}}}
 ```
 
-### Delete
+#### Delete
 
 ```clojure
 user=> (hb/put db :files "myfile.txt" {:byte-data "myfile"
