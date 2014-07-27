@@ -84,6 +84,23 @@ user=> (hb/get db :files "myfile.txt" {:family :byte-data
               "first" {#inst "2014-07-27T03:39:27.389-00:00" "first file"}}}
 ```
 
+### Admin Operations
+
+#### Tables
+
+```clojure
+user=> (hb/table-exists? db :files)
+false
+user=> (hb/create-table db :files [:byte-data :content-type])
+nil
+user=> (hb/table-exists? db :files)
+true
+user=> (hb/delete-table db :files)
+nil
+user=> (hb/table-exists? db :files)
+false
+```
+
 ## License
 
 Copyright © 2014 FIXME
