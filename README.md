@@ -6,7 +6,7 @@ This is a small and still incomplete clojure wrapper for hbase 0.98.3
 Suppose we have a table "files" with column families "byte-data" and "content-type".
 Our hbase configuration is placed somewhere and loaded upon database configuration.
 
-```
+```clojure
 user=> (require '[clj-hbase.core :as hb])
 nil
 user=> (def db (hb/create-database {:resources ["/mnt/btrfs/hadoop/local/hbase-0.98.3-hadoop2/conf/hbase-site.xml"]}))
@@ -24,7 +24,7 @@ user=> (hb/get db :files "myfile.txt" {} {})
 To be able to convert the `get` results back to usable data, it is possible to specify mappers in the last argument. The
 mappers are specified in a clojure map and it follows the format:
 
-```
+```clojure
 {:column {"myfamily" <fn to convert the column names for columnFamily "myfamily">
           :* <fn to convert the column names for ALL column families>}
  :values {"myfamily" {:* <fn that converts ALL value for all columns in "myfamily">}
@@ -34,7 +34,7 @@ mappers are specified in a clojure map and it follows the format:
 
 It works like this:
 
-```
+```clojure
 user=> (hb/get db :files "myfile.txt" {} {:column {"content-type" #(String. %)}
                                           :value {"content-type" {:* #(String. %)}}})
 {"content-type" {"" {#inst "2014-07-27T03:12:10.639-00:00" "text/plain"}},
@@ -52,7 +52,7 @@ user=> (hb/get db :files "myfile.txt" {} {:column {:* #(String. %)}
 
 It is also possible to `put` several columns at once:
 
-```
+```clojure
 user=> (hb/put db :files "myfile.txt" {:byte-data {:first "first file"
                                                    "second" "second file"}
                                        :content-type "text/plain"})
@@ -66,7 +66,7 @@ user=> (hb/get db :files "myfile.txt" {} {:column {:* #(String. %)}
 
 And to `get` only specific families and columns:
 
-```
+```clojure
 user=> (hb/get db :files "myfile.txt" {:family :byte-data} {:column {:* #(String. %)}
                                                             :value {:* {:* #(String. %)}}})
 {"byte-data" {"second" {#inst "2014-07-27T03:39:27.389-00:00" "second file"},
