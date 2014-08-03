@@ -4,6 +4,7 @@
             [clj-hbase.util :as util]))
 
 (defprotocol HBaseProto
+  (disconnect [this])
   (create-table [this table-name family-names])
   (delete-table [this table-name])
   (disable-table [this table-name])
@@ -19,6 +20,7 @@
 
 (deftype HBase [connection]
   HBaseProto
+  (disconnect [this] (.close connection))
   (create-table [this table-name family-names]
                 (let [table-desc (interop/create-table-descriptor-obj table-name)]
                   (doall
