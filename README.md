@@ -74,6 +74,20 @@ user=> (hb/get db :files "myfile.txt" {:family :byte-data
               "first" {#inst "2014-07-27T03:39:27.389-00:00" "first file"}}}
 ```
 
+#### Exists
+
+`exists` works exactly like put except that the last argument is missing and it returns `true` if a given row/column
+is found in the database and `false` if not:
+
+```clojure
+user=> (hb/put db :files "myrow" {:content-type "test"})
+nil
+user=> (hb/exists db :files "myrow" {})
+true
+user=> (hb/exists db :files "norow" {})
+false
+```
+
 #### Put
 
 It is also possible to `put` several columns at once:

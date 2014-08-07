@@ -11,6 +11,7 @@
   (enable-table [this table-name])
   (table-exists? [this table-name])
   (delete [this table-name row spec])
+  (exists [this table-name row spec])
   (get [this table-name row spec result-mapping])
   (put [this table-name row values]))
 
@@ -46,6 +47,9 @@
                   table-name))
   (delete [this table-name row spec]
           (with-table (.delete table (interop/create-delete-obj row spec))))
+  (exists [this table-name row spec]
+          (with-table
+             (.exists table (interop/create-get-obj row spec))))
   (get [this table-name row spec result-mapping]
        (with-table
          (interop/unwrap-result
