@@ -114,6 +114,8 @@
 
 (defn table-exists? [admin table-name]
   (try
+    (when (nil? table-name)
+      (throw (Exception. "table-name is nil")))
     (.getTableDescriptor admin (util/->bytes table-name))
     true
     (catch TableNotFoundException e false)))
